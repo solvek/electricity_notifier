@@ -48,6 +48,13 @@ class EnApp: Application() {
         _log.value = "$prefix${Date()}: $message"
     }
 
+    fun setCurrentStatus(currentIsOn: Boolean) {
+        prefs.edit()
+            .putBoolean(KEY_IS_ON, currentIsOn)
+            .apply()
+        isOn = currentIsOn
+    }
+
     companion object {
         val Context.enApp get() = this.applicationContext as EnApp
 
