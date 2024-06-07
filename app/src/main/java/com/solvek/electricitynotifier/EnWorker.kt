@@ -45,6 +45,9 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
                 actuator.notify(isOn)
                 model.registerAction(now, isOn)
             }
+            else {
+                model.log("Change too quickly")
+            }
 
             return@withContext Result.success()
         }
