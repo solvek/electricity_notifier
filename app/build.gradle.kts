@@ -30,6 +30,8 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
+
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -50,6 +52,7 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring(libs.desugar)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -60,6 +63,9 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.work.runtime.ktx)
+    implementation(libs.ktor.core)
+    implementation(libs.ktor.cio)
+    implementation(libs.ktor.utils)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

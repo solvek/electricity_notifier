@@ -1,6 +1,7 @@
 package com.solvek.electricitynotifier
 
 import android.content.Context
+import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequest
@@ -17,7 +18,7 @@ import kotlin.time.Duration.Companion.minutes
 
 class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     private val model by lazy { applicationContext.enApp }
-    private val actuator by lazy { Actuator(context) }
+    private val actuator by lazy { Actuator() }
     private val newStatus by lazy {
         val data = workerParams.inputData
         if (data.hasKeyWithValueOfType<Boolean>(ARGUMENT_IS_ON)){
@@ -28,6 +29,7 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
         }
     }
     override suspend fun doWork(): Result  {
+        Log.d("EnWorker", "Work started")
         return withContext(Dispatchers.IO) {
             val now = System.currentTimeMillis()
             val isOn = newStatus?.also {
@@ -40,12 +42,7 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
             }
 
             if (now - recent.time > 5.minutes.inWholeMinutes){
-                if (isOn){
-                    actuator.notifyIsOn()
-                }
-                else{
-                    actuator.notifyIsOff()
-                }
+                actuator.notify(isOn)
                 model.registerAction(now, isOn)
             }
 
