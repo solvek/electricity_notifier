@@ -2,6 +2,7 @@ package com.solvek.electricitynotifier
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.Date
@@ -10,7 +11,7 @@ class EnApp: Application() {
     private val _log = MutableStateFlow("")
     val log = _log.asStateFlow()
 
-    private val prefs = getSharedPreferences("EnApp", 0)
+    private lateinit var prefs: SharedPreferences
 
     lateinit var record: Record
         private set
@@ -19,6 +20,8 @@ class EnApp: Application() {
 
     override fun onCreate() {
         super.onCreate()
+        prefs = getSharedPreferences("EnApp", 0)
+
         record = Record(
             prefs.getLong(KEY_RECORD_TIME, 0L),
             prefs.getBoolean(KEY_RECORD_IS_ON, true)

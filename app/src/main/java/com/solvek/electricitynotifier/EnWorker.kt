@@ -3,6 +3,7 @@ package com.solvek.electricitynotifier
 import android.content.Context
 import androidx.work.Worker
 import androidx.work.WorkerParameters
+import com.solvek.electricitynotifier.EnApp.Companion.enApp
 
 class EnWorker(context: Context, workerParams: WorkerParameters) : Worker(context, workerParams) {
     override fun doWork(): Result {
@@ -15,7 +16,7 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : Worker(contex
         }
 
         fun Context.handlePowerState(isOn: Boolean){
-
+            enApp.log("Power state changed: $isOn")
         }
     }
 }

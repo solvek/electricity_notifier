@@ -20,7 +20,7 @@ import com.solvek.electricitynotifier.EnWorker.Companion.schedulePeriodic
 import com.solvek.electricitynotifier.ui.theme.ElectricityNotifierTheme
 
 class MainActivity : ComponentActivity() {
-    private val model = enApp
+    private val model by lazy { enApp }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
