@@ -50,6 +50,12 @@ fun LogContent(content: String, modifier: Modifier = Modifier) {
         text = content,
         modifier = modifier
             .verticalScroll(rememberScrollState())
+//            .clickable {
+//                val actuator = Actuator()
+//                GlobalScope.launch {
+//                    actuator.notify(true)
+//                }
+//            }
     )
 }
 

@@ -1,31 +1,14 @@
 package com.solvek.electricitynotifier
 
-import android.util.Log
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.cio.CIO
-import io.ktor.client.request.post
-import io.ktor.client.request.setBody
-import io.ktor.http.ContentType
-import io.ktor.http.contentType
-
 class Actuator {
-    private val client = HttpClient(CIO)
-
     suspend fun notify(isOn: Boolean) =
-        sentMessage((if (isOn) "\uD83D\uDCA1 #Увімкнено" else "\uD83D\uDE1E #Вимкнено") + " електроенергію")
-
-    private suspend fun sentMessage(message: String){
-        Log.d("Telegram", "Sending message: $message")
-        val response = client.post(TELEGRAM_API_URL){
-            contentType(ContentType.Application.Json)
-            setBody("{'chat_id': $TELEGRAM_CHAT_ID, 'text': $message}")
-        }
-        Log.d("Telegram", "Response: $response")
-    }
+        bot.send( TELEGRAM_CHAT_ID,
+            (if (isOn) "\uD83D\uDCA1 #Увімкнено" else "\uD83D\uDE1E #Вимкнено") + " електроенергію")
 
     companion object {
         private const val TELEGRAM_API_TOKEN = "<Telegram token here>"
-        private const val TELEGRAM_API_URL = "https://api.telegram.org/bot$TELEGRAM_API_TOKEN/sendMessage"
         private const val TELEGRAM_CHAT_ID = "<Chat id>"
+
+        private val bot = TelegramBot(TELEGRAM_API_TOKEN)
     }
 }

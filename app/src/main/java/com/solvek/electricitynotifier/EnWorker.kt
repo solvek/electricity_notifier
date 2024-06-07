@@ -41,7 +41,7 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
                 return@withContext Result.success()
             }
 
-            if (now - recent.time > 5.minutes.inWholeMinutes){
+            if (now - recent.time > 5.minutes.inWholeMilliseconds){
                 actuator.notify(isOn)
                 model.registerAction(now, isOn)
             }
