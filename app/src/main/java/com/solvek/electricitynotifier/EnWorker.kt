@@ -49,6 +49,7 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
             val duration = now - recent.time
             if (duration > 5.seconds.inWholeMilliseconds){
                 actuator.notify(isOn, duration)
+                model.log("Notification sent")
                 model.registerAction(now, isOn)
             }
             else {

@@ -3,6 +3,7 @@ package com.solvek.electricitynotifier
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
+import com.solvek.electricitynotifier.EnWorker.Companion.handlePowerState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.Date
@@ -66,6 +67,9 @@ class EnApp: Application() {
             .apply()
         _enabled.value = toEnable
     }
+
+    fun forceOn() = handlePowerState(true)
+    fun forceOff() = handlePowerState(false)
 
     companion object {
         val Context.enApp get() = this.applicationContext as EnApp

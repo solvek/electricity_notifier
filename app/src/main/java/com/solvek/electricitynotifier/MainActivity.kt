@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -43,10 +44,11 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding),
-                        enabled
-                    ){
-                        model.toggleAvailability()
-                    }
+                        enabled,
+                        model::toggleAvailability,
+                        model::forceOn,
+                        model::forceOff
+                    )
                 }
             }
         }
@@ -54,13 +56,19 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun LogContent(content: String, modifier: Modifier = Modifier, isEnabled: Boolean, toggleAvailability: ()->Unit) {
+fun LogContent(
+    content: String,
+    modifier: Modifier = Modifier,
+    isEnabled: Boolean,
+    toggleAvailability: ()->Unit,
+    forceOn: () -> Unit,
+    forceOff: () -> Unit) {
     Column(modifier = modifier) {
         Button(
             onClick = toggleAvailability,
             colors = ButtonDefaults.buttonColors(containerColor =
                 if (isEnabled){
-                    Color.Green
+                    Color(1, 50, 32)
                 }
                 else {
                     Color.Red
@@ -73,6 +81,7 @@ fun LogContent(content: String, modifier: Modifier = Modifier, isEnabled: Boolea
         Text(
             text = content,
             modifier = modifier
+                .weight(1.0f)
                 .verticalScroll(rememberScrollState())
 //            .clickable {
 //                val actuator = Actuator()
@@ -81,6 +90,14 @@ fun LogContent(content: String, modifier: Modifier = Modifier, isEnabled: Boolea
 //                }
 //            }
         )
+        Row(Modifier.fillMaxWidth()) {
+            Button(onClick = forceOn, Modifier.weight(1f)){
+                Text(stringResource(R.string.force_on))
+            }
+            Button(onClick = forceOff, Modifier.weight(1f)){
+                Text(stringResource(R.string.force_off))
+            }
+        }
     }
 }
 
