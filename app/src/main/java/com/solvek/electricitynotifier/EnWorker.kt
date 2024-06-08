@@ -28,35 +28,37 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
             null
         }
     }
+
     override suspend fun doWork(): Result  {
         Log.d("EnWorker", "Work started")
-        return withContext(Dispatchers.IO) {
-            val now = System.currentTimeMillis()
-            val isOn = newStatus?.also {
-                model.setCurrentStatus(it)
-            } ?: model.isOn
-            val recent = model.record
+            return withContext(Dispatchers.IO) {
+                val now = System.currentTimeMillis()
+                val isOn = newStatus?.also {
+                    model.setCurrentStatus(it)
+                } ?: model.isOn
+                val recent = model.record
 
-            if (recent.on == isOn){
+                if (recent.on == isOn){
+                    return@withContext Result.success()
+                }
+
+                if (now - recent.time > 5.minutes.inWholeMilliseconds){
+                    actuator.notify(isOn)
+                    model.registerAction(now, isOn)
+                }
+                else {
+                    model.log("Change too quickly")
+                }
+
                 return@withContext Result.success()
             }
-
-            if (now - recent.time > 5.minutes.inWholeMilliseconds){
-                actuator.notify(isOn)
-                model.registerAction(now, isOn)
-            }
-            else {
-                model.log("Change too quickly")
-            }
-
-            return@withContext Result.success()
-        }
     }
 
     companion object {
         fun Context.schedulePeriodic(){
             enqueue(
                 PeriodicWorkRequestBuilder<EnWorker>(15, TimeUnit.MINUTES)
+                    .addTag(WORK_TAG)
                     .build()
             )
         }
@@ -70,6 +72,7 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
             enqueue(
                 OneTimeWorkRequest.Builder(EnWorker::class.java)
                     .setInputData(data)
+                    .addTag(WORK_TAG)
                     .build()
             )
         }
@@ -79,5 +82,6 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
         }
 
         private const val ARGUMENT_IS_ON = "ARGUMENT_IS_ON"
+        private const val WORK_TAG = "EnWorker"
     }
 }
