@@ -32,6 +32,7 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
 
     override suspend fun doWork(): Result  {
         if (!model.enabled.value){
+            Log.d("Worker", "Work disabled. Exiting.")
             return Result.success()
         }
         Log.d("EnWorker", "Work started")
