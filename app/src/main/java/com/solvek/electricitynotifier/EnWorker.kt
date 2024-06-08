@@ -4,8 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.Data
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequest
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
@@ -63,9 +61,9 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
 
     companion object {
         fun Context.schedulePeriodic(){
-            workManager.enqueueUniquePeriodicWork(
-                WORK_NAME,
-                ExistingPeriodicWorkPolicy.KEEP,
+            workManager.enqueue(
+//                WORK_NAME,
+//                ExistingPeriodicWorkPolicy.KEEP,
                 PeriodicWorkRequestBuilder<EnWorker>(15, TimeUnit.MINUTES)
                     .build()
             )
@@ -77,9 +75,9 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
                 .putBoolean(ARGUMENT_IS_ON, isOn)
                 .build()
 
-            workManager.enqueueUniqueWork(
-                WORK_NAME,
-                ExistingWorkPolicy.KEEP,
+            workManager.enqueue(
+//                WORK_NAME,
+//                ExistingWorkPolicy.KEEP,
                 OneTimeWorkRequest.Builder(EnWorker::class.java)
                     .setInputData(data)
                     .build()
@@ -89,6 +87,6 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
         private val Context.workManager get() = WorkManager.getInstance(this)
 
         private const val ARGUMENT_IS_ON = "ARGUMENT_IS_ON"
-        private const val WORK_NAME = "EnWorker"
+//        private const val WORK_NAME = "EnWorker"
     }
 }
