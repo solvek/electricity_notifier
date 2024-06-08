@@ -15,7 +15,7 @@ import com.solvek.electricitynotifier.EnApp.Companion.enApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.minutes
 
 class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     private val model by lazy { applicationContext.enApp }
@@ -48,7 +48,7 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
             }
 
             val duration = now - recent.time
-            if (duration > 5.seconds.inWholeMilliseconds){
+            if (duration > 5.minutes.inWholeMilliseconds){
                 actuator.notify(isOn, duration)
                 model.log("Notification sent")
                 model.registerAction(now, isOn)

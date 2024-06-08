@@ -46,8 +46,8 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding),
                         enabled,
                         model::toggleAvailability,
-                        model::forceOn,
-                        model::forceOff
+                        model::electricityOn,
+                        model::electricityOff
                     )
                 }
             }

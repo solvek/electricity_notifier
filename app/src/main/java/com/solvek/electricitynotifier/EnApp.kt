@@ -68,8 +68,8 @@ class EnApp: Application() {
         _enabled.value = toEnable
     }
 
-    fun forceOn() = handlePowerState(true)
-    fun forceOff() = handlePowerState(false)
+    fun electricityOn() = handlePowerState(true)
+    fun electricityOff() = handlePowerState(false)
 
     companion object {
         val Context.enApp get() = this.applicationContext as EnApp
