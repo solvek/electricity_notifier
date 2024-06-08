@@ -18,6 +18,9 @@ class EnApp: Application() {
     var isOn: Boolean = true
         private set
 
+    private val _enabled = MutableStateFlow(true)
+    val enabled = _enabled.asStateFlow()
+
     override fun onCreate() {
         super.onCreate()
         prefs = getSharedPreferences("EnApp", 0)
@@ -27,6 +30,7 @@ class EnApp: Application() {
             prefs.getBoolean(KEY_RECORD_IS_ON, true)
         )
         isOn = prefs.getBoolean(KEY_IS_ON, true)
+        _enabled.value = prefs.getBoolean(KEY_ENABLED, true)
     }
 
     fun registerAction(time: Long, isOn: Boolean){
@@ -55,11 +59,20 @@ class EnApp: Application() {
         isOn = currentIsOn
     }
 
+    fun toggleAvailability(){
+        val toEnable = !_enabled.value
+        prefs.edit()
+            .putBoolean(KEY_ENABLED, toEnable)
+            .apply()
+        _enabled.value = toEnable
+    }
+
     companion object {
         val Context.enApp get() = this.applicationContext as EnApp
 
         private const val KEY_RECORD_TIME = "Record_time"
         private const val KEY_RECORD_IS_ON = "Record_is_on"
         private const val KEY_IS_ON = "Is_on"
+        private const val KEY_ENABLED = "Enabled"
     }
 }

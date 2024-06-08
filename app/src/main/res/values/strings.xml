@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ElectricityNotifier</string>
+    <string name="disable">Disable</string>
+    <string name="enable">Enable</string>
 </resources>

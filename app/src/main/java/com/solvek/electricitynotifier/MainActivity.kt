@@ -4,17 +4,22 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import com.solvek.electricitynotifier.EnApp.Companion.enApp
 import com.solvek.electricitynotifier.EnWorker.Companion.schedulePeriodic
 import com.solvek.electricitynotifier.ui.theme.ElectricityNotifierTheme
@@ -30,14 +35,18 @@ class MainActivity : ComponentActivity() {
         model.log("Scheduled")
         setContent {
             val content by model.log.collectAsState()
+            val enabled by model.enabled.collectAsState()
             ElectricityNotifierTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     LogContent(
                         content = content,
                         modifier = Modifier
                             .fillMaxSize()
-                            .padding(innerPadding)
-                    )
+                            .padding(innerPadding),
+                        enabled
+                    ){
+                        model.toggleAvailability()
+                    }
                 }
             }
         }
@@ -45,24 +54,42 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun LogContent(content: String, modifier: Modifier = Modifier) {
-    Text(
-        text = content,
-        modifier = modifier
-            .verticalScroll(rememberScrollState())
+fun LogContent(content: String, modifier: Modifier = Modifier, isEnabled: Boolean, toggleAvailability: ()->Unit) {
+    Column(modifier = modifier) {
+        Button(
+            onClick = toggleAvailability,
+            colors = ButtonDefaults.buttonColors(containerColor =
+                if (isEnabled){
+                    Color.Green
+                }
+                else {
+                    Color.Red
+                }
+            ),
+            modifier = Modifier.fillMaxWidth()
+        ){
+            Text(stringResource(if (isEnabled) R.string.disable else R.string.enable))
+        }
+        Text(
+            text = content,
+            modifier = modifier
+                .verticalScroll(rememberScrollState())
 //            .clickable {
 //                val actuator = Actuator()
 //                GlobalScope.launch {
 //                    actuator.notify(true)
 //                }
 //            }
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ElectricityNotifierTheme {
-        LogContent("Android")
+        )
     }
 }
+
+//@Preview(showBackground = true)
+//@Composable
+//fun GreetingPreview() {
+//    ElectricityNotifierTheme {
+//        LogContent("Android"){
+//
+//        }
+//    }
+//}

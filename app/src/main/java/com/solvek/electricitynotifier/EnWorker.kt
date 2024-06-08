@@ -31,28 +31,31 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
     }
 
     override suspend fun doWork(): Result  {
+        if (!model.enabled.value){
+            return Result.success()
+        }
         Log.d("EnWorker", "Work started")
-            return withContext(Dispatchers.IO) {
-                val now = System.currentTimeMillis()
-                val isOn = newStatus?.also {
-                    model.setCurrentStatus(it)
-                } ?: model.isOn
-                val recent = model.record
+        return withContext(Dispatchers.IO) {
+            val now = System.currentTimeMillis()
+            val isOn = newStatus?.also {
+                model.setCurrentStatus(it)
+            } ?: model.isOn
+            val recent = model.record
 
-                if (recent.on == isOn){
-                    return@withContext Result.success()
-                }
-
-                if (now - recent.time > 5.minutes.inWholeMilliseconds){
-                    actuator.notify(isOn)
-                    model.registerAction(now, isOn)
-                }
-                else {
-                    model.log("Change too quickly")
-                }
-
+            if (recent.on == isOn){
                 return@withContext Result.success()
             }
+
+            if (now - recent.time > 5.minutes.inWholeMilliseconds){
+                actuator.notify(isOn)
+                model.registerAction(now, isOn)
+            }
+            else {
+                model.log("Change too quickly")
+            }
+
+            return@withContext Result.success()
+        }
     }
 
     companion object {
