@@ -1,9 +1,22 @@
 package com.solvek.electricitynotifier
 
 class Actuator {
-    suspend fun notify(isOn: Boolean) =
+    suspend fun notify(isOn: Boolean, last: Long) =
         bot.send( TELEGRAM_CHAT_ID,
-            (if (isOn) "\uD83D\uDCA1 #Увімкнено" else "\uD83D\uDE1E #Вимкнено") + " електроенергію")
+            (if (isOn) "\uD83D\uDCA1 #Увімкнено" else "\uD83D\uDE1E #Вимкнено") + " електроенергію"+
+                    lasting(isOn, last)+
+                    "\r\n#електроенергія #група4"
+        )
+
+    private fun lasting(isOn: Boolean, last: Long): String {
+        val wholeMinutes = last / (1000*60)
+        val hours = wholeMinutes / 60
+        if (hours > 1000){
+            return ""
+        }
+        val minutes = wholeMinutes % 60
+        return "\r\nТривалість ${if (isOn) "відключення" else "підключення"} $hours год $minutes хв"
+    }
 
     companion object {
         private const val TELEGRAM_API_TOKEN = "<Telegram token here>"
