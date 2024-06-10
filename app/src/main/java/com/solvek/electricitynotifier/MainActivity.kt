@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import com.solvek.electricitynotifier.EnApp.Companion.enApp
-import com.solvek.electricitynotifier.EnWorker.Companion.schedulePeriodic
 import com.solvek.electricitynotifier.ui.theme.ElectricityNotifierTheme
 
 class MainActivity : ComponentActivity() {
@@ -32,7 +31,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        schedulePeriodic()
+//        schedulePeriodic()
         model.log("Scheduled")
         setContent {
             val content by model.log.collectAsState()
