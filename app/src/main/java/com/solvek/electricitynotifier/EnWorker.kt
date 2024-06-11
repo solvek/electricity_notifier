@@ -2,8 +2,11 @@ package com.solvek.electricitynotifier
 
 import android.content.Context
 import android.util.Log
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
 import androidx.work.Data
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
@@ -50,12 +53,11 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
                 actuator.notify(isOn, duration)
                 model.log("Notification sent")
                 model.registerAction(now, isOn)
-            }
-            else {
-                model.log("Change too quickly")
+                return@withContext Result.success()
             }
 
-            return@withContext Result.success()
+            model.log("Change too quickly")
+            return@withContext Result.retry()
         }
     }
 
@@ -75,11 +77,12 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
                 .putBoolean(ARGUMENT_IS_ON, isOn)
                 .build()
 
-            workManager.enqueue(
-//                WORK_NAME,
-//                ExistingWorkPolicy.KEEP,
+            workManager.enqueueUniqueWork(
+                WORK_NAME,
+                ExistingWorkPolicy.KEEP,
                 OneTimeWorkRequest.Builder(EnWorker::class.java)
                     .setInputData(data)
+                    .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
                     .build()
             )
         }
@@ -87,6 +90,6 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
         private val Context.workManager get() = WorkManager.getInstance(this)
 
         private const val ARGUMENT_IS_ON = "ARGUMENT_IS_ON"
-//        private const val WORK_NAME = "EnWorker"
+        private const val WORK_NAME = "EnWorker"
     }
 }
