@@ -3,7 +3,7 @@ package com.solvek.electricitynotifier
 import android.app.Application
 import android.content.Context
 import android.content.SharedPreferences
-import com.solvek.electricitynotifier.EnWorker.Companion.handlePowerState
+import com.solvek.electricitynotifier.EnWorker.Companion.syncPowerState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import java.util.Date
@@ -62,14 +62,17 @@ class EnApp: Application() {
 
     fun toggleAvailability(){
         val toEnable = !_enabled.value
+        if (toEnable){
+            syncPowerState()
+        }
         prefs.edit()
             .putBoolean(KEY_ENABLED, toEnable)
             .apply()
         _enabled.value = toEnable
     }
 
-    fun electricityOn() = handlePowerState(true)
-    fun electricityOff() = handlePowerState(false)
+    fun electricityOn() = syncPowerState(true)
+    fun electricityOff() = syncPowerState(false)
 
     companion object {
         val Context.enApp get() = this.applicationContext as EnApp

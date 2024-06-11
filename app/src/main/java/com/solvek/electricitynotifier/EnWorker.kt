@@ -45,14 +45,23 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
             val recent = model.record
 
             if (recent.on == isOn){
+                model.log("New status and current status are the same: $isOn")
                 return@withContext Result.success()
             }
 
             val duration = (now - recent.time).toDuration(DurationUnit.MILLISECONDS)
-            if (duration > 5.minutes){
-                actuator.notify(isOn, duration)
-                model.log("Notification sent")
+            if (duration > 1.minutes){
+                model.log("Sending notification")
+                try {
+                    actuator.notify(isOn, duration)
+                }
+                catch (th: Throwable){
+                    Log.e("EnWorker", "Failed to notify", th)
+                    model.log("Notification failed")
+                    return@withContext Result.retry()
+                }
                 model.registerAction(now, isOn)
+                model.log("Notification sent")
                 return@withContext Result.success()
             }
 
@@ -71,19 +80,29 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
 //            )
 //        }
 
-        fun Context.handlePowerState(isOn: Boolean){
+        fun Context.syncPowerState(isOn: Boolean) {
             enApp.log("Power state changed: $isOn")
             val data: Data = Data.Builder()
                 .putBoolean(ARGUMENT_IS_ON, isOn)
                 .build()
 
+            syncPowerState {
+                setInputData(data)
+            }
+        }
+
+        fun Context.syncPowerState() = syncPowerState {  }
+
+        private fun Context.syncPowerState(builder: OneTimeWorkRequest.Builder.()->Unit){
+            val requestBuilder = OneTimeWorkRequest.Builder(EnWorker::class.java)
+                .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
+
+            requestBuilder.builder()
+
             workManager.enqueueUniqueWork(
                 WORK_NAME,
-                ExistingWorkPolicy.KEEP,
-                OneTimeWorkRequest.Builder(EnWorker::class.java)
-                    .setInputData(data)
-                    .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-                    .build()
+                ExistingWorkPolicy.REPLACE,
+                requestBuilder.build()
             )
         }
 

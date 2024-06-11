@@ -3,13 +3,19 @@ package com.solvek.electricitynotifier
 import android.util.Log
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.Parameters
+import kotlin.time.Duration.Companion.minutes
 
 class TelegramBot(apiKey: String) {
-    private val client = HttpClient(CIO)
+    private val client = HttpClient(CIO){
+        install(HttpTimeout){
+            connectTimeoutMillis = 3.minutes.inWholeMilliseconds
+        }
+    }
     private val url = "https://api.telegram.org/bot$apiKey/sendMessage"
     suspend fun send(to: String, message: String){
         Log.d("Telegram", "Sending message: $message")
