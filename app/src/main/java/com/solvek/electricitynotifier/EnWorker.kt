@@ -32,6 +32,10 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
     }
 
     override suspend fun doWork(): Result  {
+        val isOn = newStatus?.also {
+            model.setCurrentStatus(it)
+        } ?: model.isOn
+
         if (!model.enabled.value){
             Log.d("Worker", "Work disabled. Exiting.")
             return Result.success()
@@ -39,9 +43,6 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
         Log.d("EnWorker", "Work started")
         return withContext(Dispatchers.IO) {
             val now = System.currentTimeMillis()
-            val isOn = newStatus?.also {
-                model.setCurrentStatus(it)
-            } ?: model.isOn
             val recent = model.record
 
             if (recent.on == isOn){
