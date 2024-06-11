@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
 //        schedulePeriodic()
-        model.log("Scheduled")
+//        model.log("Scheduled")
         setContent {
             val content by model.log.collectAsState()
             val enabled by model.enabled.collectAsState()
