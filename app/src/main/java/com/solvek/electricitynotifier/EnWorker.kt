@@ -26,7 +26,8 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
             return Result.success()
         }
 
-        Log.d("EnWorker", "Work started")
+        model.log("Work started")
+
         val isOn = model.isOn
         return withContext(Dispatchers.IO) {
             val now = System.currentTimeMillis()
