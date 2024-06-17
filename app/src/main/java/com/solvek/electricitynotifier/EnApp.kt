@@ -71,8 +71,16 @@ class EnApp: Application() {
         _enabled.value = toEnable
     }
 
-    fun electricityOn() = syncPowerState(true)
-    fun electricityOff() = syncPowerState(false)
+    fun electricityOn() {
+        setCurrentStatus(true)
+        log("Electricity ON")
+        syncPowerState()
+    }
+    fun electricityOff(){
+        setCurrentStatus(false)
+        log("Electricity OFF")
+        syncPowerState()
+    }
 
     companion object {
         val Context.enApp get() = this.applicationContext as EnApp

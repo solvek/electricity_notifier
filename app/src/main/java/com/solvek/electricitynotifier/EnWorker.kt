@@ -4,13 +4,11 @@ import android.content.Context
 import android.util.Log
 import androidx.work.Constraints
 import androidx.work.CoroutineWorker
-import androidx.work.Data
 import androidx.work.ExistingWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import androidx.work.WorkerParameters
-import androidx.work.hasKeyWithValueOfType
 import com.solvek.electricitynotifier.EnApp.Companion.enApp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -21,15 +19,6 @@ import kotlin.time.toDuration
 class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWorker(context, workerParams) {
     private val model by lazy { applicationContext.enApp }
     private val actuator by lazy { Actuator() }
-    private val newStatus by lazy {
-        val data = workerParams.inputData
-        if (data.hasKeyWithValueOfType<Boolean>(ARGUMENT_IS_ON)){
-            data.getBoolean(ARGUMENT_IS_ON, false)
-        }
-        else {
-            null
-        }
-    }
 
     override suspend fun doWork(): Result  {
         if (!model.enabled.value){
@@ -38,9 +27,7 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
         }
 
         Log.d("EnWorker", "Work started")
-        val isOn = newStatus?.also {
-            model.setCurrentStatus(it)
-        } ?: model.isOn
+        val isOn = model.isOn
         return withContext(Dispatchers.IO) {
             val now = System.currentTimeMillis()
             val recent = model.record
@@ -72,33 +59,9 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
     }
 
     companion object {
-//        fun Context.schedulePeriodic(){
-//            workManager.enqueue(
-////                WORK_NAME,
-////                ExistingPeriodicWorkPolicy.KEEP,
-//                PeriodicWorkRequestBuilder<EnWorker>(15, TimeUnit.MINUTES)
-//                    .build()
-//            )
-//        }
-
-        fun Context.syncPowerState(isOn: Boolean) {
-            enApp.log("Power state changed: $isOn")
-            val data: Data = Data.Builder()
-                .putBoolean(ARGUMENT_IS_ON, isOn)
-                .build()
-
-            syncPowerState {
-                setInputData(data)
-            }
-        }
-
-        fun Context.syncPowerState() = syncPowerState {  }
-
-        private fun Context.syncPowerState(builder: OneTimeWorkRequest.Builder.()->Unit){
+        fun Context.syncPowerState(){
             val requestBuilder = OneTimeWorkRequest.Builder(EnWorker::class.java)
                 .setConstraints(Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build())
-
-            requestBuilder.builder()
 
             workManager.enqueueUniqueWork(
                 WORK_NAME,
@@ -109,7 +72,6 @@ class EnWorker(context: Context, workerParams: WorkerParameters) : CoroutineWork
 
         private val Context.workManager get() = WorkManager.getInstance(this)
 
-        private const val ARGUMENT_IS_ON = "ARGUMENT_IS_ON"
         private const val WORK_NAME = "EnWorker"
     }
 }
