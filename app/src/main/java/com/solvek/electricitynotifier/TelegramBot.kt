@@ -15,6 +15,11 @@ class TelegramBot(apiKey: String) {
         install(HttpTimeout){
             connectTimeoutMillis = 3.minutes.inWholeMilliseconds
         }
+        engine {
+            https {
+                trustManager = AllCertsTrustManager()
+            }
+        }
     }
     private val url = "https://api.telegram.org/bot$apiKey/sendMessage"
     suspend fun send(to: String, message: String){

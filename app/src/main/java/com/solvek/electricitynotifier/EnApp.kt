@@ -2,6 +2,8 @@ package com.solvek.electricitynotifier
 
 import android.app.Application
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.SharedPreferences
 import com.solvek.electricitynotifier.EnWorker.Companion.syncPowerState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,6 +34,8 @@ class EnApp: Application() {
         )
         isOn = prefs.getBoolean(KEY_IS_ON, true)
         _enabled.value = prefs.getBoolean(KEY_ENABLED, true)
+
+        registerPowerListener()
     }
 
     fun registerAction(time: Long, isOn: Boolean){
@@ -53,13 +57,6 @@ class EnApp: Application() {
         _log.value = "$prefix${Date()}: $message"
     }
 
-    fun setCurrentStatus(currentIsOn: Boolean) {
-        prefs.edit()
-            .putBoolean(KEY_IS_ON, currentIsOn)
-            .apply()
-        isOn = currentIsOn
-    }
-
     fun toggleAvailability(){
         val toEnable = !_enabled.value
         if (toEnable){
@@ -76,10 +73,25 @@ class EnApp: Application() {
         log("Electricity ON")
         syncPowerState()
     }
+
     fun electricityOff(){
         setCurrentStatus(false)
         log("Electricity OFF")
         syncPowerState()
+    }
+    private fun setCurrentStatus(currentIsOn: Boolean) {
+        prefs.edit()
+            .putBoolean(KEY_IS_ON, currentIsOn)
+            .apply()
+        isOn = currentIsOn
+    }
+
+    private fun registerPowerListener(){
+        val filter = IntentFilter().apply {
+            addAction(Intent.ACTION_POWER_CONNECTED)
+            addAction(Intent.ACTION_POWER_DISCONNECTED)
+        }
+        registerReceiver(PowerListener(), filter)
     }
 
     companion object {
