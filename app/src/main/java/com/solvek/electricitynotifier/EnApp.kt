@@ -48,7 +48,7 @@ class EnApp: Application() {
 
     fun log(message: String){
         val c = _log.value
-        val prefix = if (c.length > 10000){
+        val prefix = if (c.length > 5000){
             ""
         }
         else {
